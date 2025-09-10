@@ -3,6 +3,102 @@ import { backendConfig, externalConfig, targetConfig } from './config.js';
 
 let subUrl = '';
 
+// Theme management
+class ThemeManager {
+    constructor() {
+        this.currentTheme = localStorage.getItem('theme') || 'system';
+        this.init();
+    }
+
+    init() {
+        this.updateTheme();
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        const themeToggle = document.getElementById('themeToggle');
+        const themeDropdown = document.getElementById('themeDropdown');
+        const themeButtons = document.querySelectorAll('[data-theme]');
+
+        if (themeToggle && themeDropdown) {
+            themeToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                themeDropdown.classList.toggle('hidden');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!themeDropdown.contains(e.target) && !themeToggle.contains(e.target)) {
+                    themeDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        themeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const theme = button.dataset.theme;
+                this.setTheme(theme);
+                if (themeDropdown) {
+                    themeDropdown.classList.add('hidden');
+                }
+            });
+        });
+
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+            if (this.currentTheme === 'system') {
+                this.updateTheme();
+            }
+        });
+    }
+
+    setTheme(theme) {
+        this.currentTheme = theme;
+        localStorage.setItem('theme', theme);
+        this.updateTheme();
+    }
+
+    updateTheme() {
+        const html = document.documentElement;
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+
+        let isDark = false;
+        
+        if (this.currentTheme === 'dark') {
+            isDark = true;
+        } else if (this.currentTheme === 'system') {
+            isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+
+        if (isDark) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        // Update button appearance
+        if (themeIcon && themeText) {
+            switch (this.currentTheme) {
+                case 'light':
+                    themeIcon.className = 'fas fa-sun mr-2 text-sm';
+                    themeText.textContent = '浅色';
+                    break;
+                case 'dark':
+                    themeIcon.className = 'fas fa-moon mr-2 text-sm';
+                    themeText.textContent = '深色';
+                    break;
+                case 'system':
+                    themeIcon.className = 'fas fa-desktop mr-2 text-sm';
+                    themeText.textContent = '系统';
+                    break;
+            }
+        }
+    }
+}
+
+// Initialize theme manager
+const themeManager = new ThemeManager();
+
 // Toast notification function
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
@@ -294,13 +390,18 @@ function handleQrCode() {
         // Clear previous QR code
         canvas.innerHTML = '';
         
+        // Determine colors based on theme
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const colorDark = isDarkMode ? '#FFFFFF' : '#1F2937';
+        const colorLight = isDarkMode ? '#1F2937' : '#FFFFFF';
+        
         // Create QR code using qrcodejs library
         new QRCode(canvas, {
             text: result.value,
             width: 256,
             height: 256,
-            colorDark: '#1F2937',
-            colorLight: '#FFFFFF',
+            colorDark: colorDark,
+            colorLight: colorLight,
             correctLevel: QRCode.CorrectLevel.M
         });
         
@@ -419,13 +520,18 @@ function handleClashQrCode() {
         // Clear previous QR code
         canvas.innerHTML = '';
         
+        // Determine colors based on theme
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        const colorDark = isDarkMode ? '#FFFFFF' : '#1F2937';
+        const colorLight = isDarkMode ? '#1F2937' : '#FFFFFF';
+        
         // Create QR code using qrcodejs library
         new QRCode(canvas, {
             text: clashUrl,
             width: 256,
             height: 256,
-            colorDark: '#1F2937',
-            colorLight: '#FFFFFF',
+            colorDark: colorDark,
+            colorLight: colorLight,
             correctLevel: QRCode.CorrectLevel.M
         });
         

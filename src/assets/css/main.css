@@ -24,7 +24,7 @@
     }
     
     .input-field {
-        @apply block w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all duration-200;
+        @apply block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all duration-200;
     }
     
     .select-field {
@@ -77,7 +77,7 @@
     }
     
     .card-glass {
-        @apply bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-white/30;
+        @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-white/30 dark:hover:border-gray-600/60;
     }
     
     .card-header {
@@ -89,19 +89,19 @@
     }
     
     .toast-success {
-        @apply bg-green-50/80 backdrop-blur-sm border border-green-200/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
+        @apply bg-green-50/90 dark:bg-green-900/90 backdrop-blur-sm border border-green-200/50 dark:border-green-700/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
     }
     
     .toast-error {
-        @apply bg-red-50/80 backdrop-blur-sm border border-red-200/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
+        @apply bg-red-50/90 dark:bg-red-900/90 backdrop-blur-sm border border-red-200/50 dark:border-red-700/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
     }
     
     .toast-info {
-        @apply bg-blue-50/80 backdrop-blur-sm border border-blue-200/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
+        @apply bg-blue-50/90 dark:bg-blue-900/90 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
     }
     
     .form-label {
-        @apply block text-sm font-semibold text-gray-700 mb-2;
+        @apply block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2;
     }
     
     .switch {
@@ -142,19 +142,19 @@
     }
     
     .floating {
-        animation: floating 3s ease-in-out infinite;
+        animation: floating 2s ease-in-out infinite;
     }
     
     .floating-delay-1 {
-        animation-delay: 0.5s;
+        animation-delay: 0.3s;
     }
     
     .floating-delay-2 {
-        animation-delay: 1s;
+        animation-delay: 0.6s;
     }
     
     .pulse-glow {
-        animation: pulse-glow 2s ease-in-out infinite;
+        animation: pulse-glow 1.5s ease-in-out infinite;
     }
 }
 
@@ -169,7 +169,7 @@
 }
 
 .select-enhanced select {
-    @apply w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl bg-white text-gray-700 font-medium transition-all duration-200 appearance-none cursor-pointer hover:border-gray-300 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-gray-50 focus:shadow-lg;
+    @apply w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium transition-all duration-200 appearance-none cursor-pointer hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-gray-50 dark:focus:bg-gray-600 focus:shadow-lg;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
@@ -188,25 +188,29 @@
 
 /* Custom styling for select options */
 .select-enhanced select option {
-    @apply px-4 py-3 text-gray-700;
+    @apply px-4 py-3 text-gray-700 dark:text-gray-200;
     background-color: white;
 }
 
+.select-enhanced select option:is(.dark *) {
+    background-color: rgb(55 65 81);
+}
+
 .select-enhanced select option:hover {
-    @apply bg-primary-50 text-primary-700;
+    @apply bg-primary-50 dark:bg-gray-600 text-primary-700 dark:text-gray-100;
 }
 
 .select-enhanced select option:checked {
-    @apply bg-primary-100 text-primary-800 font-medium;
+    @apply bg-primary-100 dark:bg-gray-500 text-primary-800 dark:text-gray-100 font-medium;
 }
 
 .select-enhanced select optgroup {
-    @apply font-bold text-gray-900 bg-gray-50 border-b border-gray-200;
+    @apply font-bold text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-500;
     padding: 0.75rem 0 0.5rem 0;
 }
 
 .select-enhanced select optgroup option {
-    @apply ml-4;
+    @apply ml-4 dark:bg-gray-700;
     padding: 0.5rem 1rem;
 }
 
@@ -216,12 +220,12 @@
 }
 
 .select-floating label {
-    @apply absolute left-4 top-3 text-gray-500 text-sm transition-all duration-200 pointer-events-none z-10;
+    @apply absolute left-4 top-3 text-gray-500 dark:text-gray-400 text-sm transition-all duration-200 pointer-events-none z-10;
 }
 
 .select-floating select:focus + label,
 .select-floating select:not(:placeholder-shown) + label {
-    @apply -top-2 left-3 text-xs text-primary-600 bg-white px-2;
+    @apply -top-2 left-3 text-xs text-primary-600 dark:text-primary-400 bg-white dark:bg-gray-700 px-2;
 }
 
 /* Custom dropdown arrow animation */
@@ -284,22 +288,22 @@
 
 @keyframes floating {
     0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-20px); }
+    50% { transform: translateY(-15px); }
 }
 
 @keyframes pulse-glow {
     0%, 100% { 
-        box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
     }
     50% { 
-        box-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+        box-shadow: 0 0 30px rgba(99, 102, 241, 0.8);
     }
 }
 
 @keyframes slide-up {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -315,7 +319,7 @@
 @keyframes scale-in {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.95);
     }
     to {
         opacity: 1;
@@ -324,15 +328,15 @@
 }
 
 .animate-slide-up {
-    animation: slide-up 0.5s ease-out;
+    animation: slide-up 0.3s ease-out;
 }
 
 .animate-fade-in {
-    animation: fade-in 0.5s ease-out;
+    animation: fade-in 0.3s ease-out;
 }
 
 .animate-scale-in {
-    animation: scale-in 0.3s ease-out;
+    animation: scale-in 0.2s ease-out;
 }
 
 @keyframes fade-out {
@@ -341,7 +345,7 @@
 }
 
 .animate-fade-out {
-    animation: fade-out 0.3s ease-out;
+    animation: fade-out 0.2s ease-out;
 }
 
 /* Refresh button animation */

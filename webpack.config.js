@@ -68,7 +68,8 @@ module.exports = {
         new NodePolyfillPlugin(),
         new CopyPlugin({
             patterns: [
-                { from: "public/favicon.ico", to: "favicon.ico" }
+                { from: "public/favicon.ico", to: "favicon.ico" },
+                { from: "public/qrcode.min.js", to: "qrcode.min.js" }
             ],
         })
     ],
