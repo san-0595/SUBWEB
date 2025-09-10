@@ -118,29 +118,32 @@ function showToast(message, type = 'info') {
         warning: '<i class="fas fa-exclamation-triangle text-yellow-500 text-xl"></i>'
     };
     
-    // Set toast styling based on type
-    toast.firstElementChild.className = `bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl p-4 flex items-center space-x-4 border border-gray-200/50 ${
-        type === 'success' ? 'border-green-200/50' :
-        type === 'error' ? 'border-red-200/50' :
-        type === 'warning' ? 'border-yellow-200/50' :
-        'border-blue-200/50'
+    // Set toast styling based on type with dark mode support
+    toast.firstElementChild.className = `bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-2xl shadow-2xl p-4 flex items-center space-x-4 border border-gray-200/50 dark:border-gray-600/50 ${
+        type === 'success' ? 'border-green-200/50 dark:border-green-700/50' :
+        type === 'error' ? 'border-red-200/50 dark:border-red-700/50' :
+        type === 'warning' ? 'border-yellow-200/50 dark:border-yellow-700/50' :
+        'border-blue-200/50 dark:border-blue-700/50'
     }`;
     
     toastIcon.innerHTML = icons[type];
+    
+    // Update message text color for dark mode
+    toastMessage.className = 'text-sm font-semibold text-gray-900 dark:text-gray-100';
     
     // Show toast with animation
     toast.classList.remove('hidden', 'translate-x-full');
     toast.classList.add('animate-slide-up');
     
-    // Hide toast after 3 seconds
+    // Hide toast after 2.5 seconds (faster)
     setTimeout(() => {
         toast.classList.add('translate-x-full');
         toast.classList.remove('animate-slide-up');
         // Completely hide after animation
         setTimeout(() => {
             toast.classList.add('hidden');
-        }, 300);
-    }, 3000);
+        }, 200); // Reduced from 300 to 200
+    }, 2500); // Reduced from 3000 to 2500
 }
 
 // Hide toast function for close button
@@ -151,7 +154,7 @@ function hideToast() {
         toast.classList.remove('animate-slide-up');
         setTimeout(() => {
             toast.classList.add('hidden');
-        }, 300);
+        }, 200); // Reduced from 300 to 200
     }
 }
 
