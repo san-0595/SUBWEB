@@ -159,6 +159,12 @@ function handleMobileAdvancedToggle(optionName) {
     mobileAdvancedOptions[optionName] = !mobileAdvancedOptions[optionName];
     updateMobileAdvancedModal();
     updateMobileAdvancedButton();
+    
+    // 立即应用到桌面端checkbox
+    const desktopCheckbox = document.getElementById(optionName);
+    if (desktopCheckbox) {
+        desktopCheckbox.checked = mobileAdvancedOptions[optionName];
+    }
 }
 
 // Initialize theme manager
@@ -729,102 +735,161 @@ async function initializeBackends() {
     // Show detection progress
     showToast('开始检测后端服务...', 'info');
     
-    // Check all backends in parallel
-    const checkPromises = backendConfig.map(async (backend, index) => {
-        // Stagger the requests to avoid overwhelming the network
-        await new Promise(resolve => setTimeout(resolve, index * 200));
+    // Store results as they come in
+    const backendResults = new Map();
+    let currentSelected = null;
+    let hasSelectedInitial = false;
+    
+    // Function to update backend list
+    const updateBackendList = () => {
+        const availableBackends = Array.from(backendResults.values())
+            .filter(result => result.success)
+            .sort((a, b) => a.responseTime - b.responseTime);
+            
+        if (availableBackends.length === 0) return;
         
-        const startTime = Date.now();
-        const version = await checkBackendVersion(backend.value);
-        const responseTime = Date.now() - startTime;
+        // Clear current options
+        backendHeaderSelect.innerHTML = '';
         
-        if (version) {
-            return {
-                ...backend,
-                version: version,
-                responseTime: responseTime,
-                label: backend.label
-            };
-        }
-        return null;
-    });
-    
-    // Wait for all checks to complete
-    const results = await Promise.all(checkPromises);
-    
-    // Filter out null results
-    const validBackends = results.filter(backend => backend !== null);
-    
-    // Populate header select with sorted backends
-    backendHeaderSelect.innerHTML = '';
-    
-    if (validBackends.length > 0) {
         // Check if Lfree backend is available
-        const lfreeBackend = validBackends.find(backend => 
+        const lfreeBackend = availableBackends.find(backend => 
             backend.label.includes('Lfree提供') || backend.value.includes('api.sub.zaoy.cn')
         );
         
+        let shouldSelectLfree = false;
+        
         if (lfreeBackend) {
-            // Add Lfree backend first and select it
+            // If we haven't selected initial backend or current selected is not Lfree, select Lfree
+            if (!hasSelectedInitial || (currentSelected && !currentSelected.label.includes('Lfree提供'))) {
+                shouldSelectLfree = true;
+            }
+            
+            // Add Lfree backend first
             const lfreeOpt = document.createElement('option');
             lfreeOpt.value = lfreeBackend.value;
             lfreeOpt.textContent = `${lfreeBackend.label} ⚡ 推荐`;
-            lfreeOpt.selected = true;
+            lfreeOpt.selected = shouldSelectLfree;
             backendHeaderSelect.appendChild(lfreeOpt);
             
-            // Add other backends sorted by response time
-            const otherBackends = validBackends
-                .filter(backend => backend !== lfreeBackend)
-                .sort((a, b) => a.responseTime - b.responseTime);
+            if (shouldSelectLfree) {
+                currentSelected = lfreeBackend;
+                if (hasSelectedInitial) {
+                    showToast(`✨ 检测到Lfree负载均衡后端，已自动切换！响应时间 ${lfreeBackend.responseTime}ms`, 'success');
+                }
+            }
             
+            // Add other backends
+            const otherBackends = availableBackends.filter(backend => backend !== lfreeBackend);
             otherBackends.forEach(backend => {
                 const opt = document.createElement('option');
                 opt.value = backend.value;
                 opt.textContent = backend.label;
                 backendHeaderSelect.appendChild(opt);
             });
-            
-            showToast(`✨ 已自动选择Lfree负载均衡后端，响应时间 ${lfreeBackend.responseTime}ms`, 'success');
         } else {
-            // Sort all backends by response time if Lfree is not available
-            validBackends.sort((a, b) => a.responseTime - b.responseTime);
-            
-            validBackends.forEach((backend, index) => {
+            // No Lfree backend, select fastest available
+            availableBackends.forEach((backend, index) => {
                 const opt = document.createElement('option');
                 opt.value = backend.value;
-                if (index === 0) {
+                if (index === 0 && !hasSelectedInitial) {
                     opt.textContent = `${backend.label} ⚡ 最快`;
                     opt.selected = true;
+                    currentSelected = backend;
                 } else {
                     opt.textContent = backend.label;
                 }
                 backendHeaderSelect.appendChild(opt);
             });
-            
-            // Show success message with details
-            const avgTime = Math.round(validBackends.reduce((sum, b) => sum + b.responseTime, 0) / validBackends.length);
-            showToast(`检测到 ${validBackends.length} 个可用后端，平均响应时间 ${avgTime}ms`, 'success');
         }
-    } else {
-        // Fallback to original list if no backends respond
-        backendConfig.forEach(option => {
-            const opt = document.createElement('option');
-            opt.value = option.value;
-            opt.textContent = option.label;
-            backendHeaderSelect.appendChild(opt);
-        });
-        showToast('未检测到可用的后端服务，请手动选择', 'warning');
+        
+        // Add custom backend option
+        const customOpt = document.createElement('option');
+        customOpt.value = 'custom';
+        customOpt.textContent = '自建本地服务';
+        backendHeaderSelect.appendChild(customOpt);
+        
+        backendHeaderSelect.disabled = false;
+        updateBackendButtonLabel();
+        
+        if (!hasSelectedInitial) {
+            hasSelectedInitial = true;
+            const avgTime = Math.round(availableBackends.reduce((sum, b) => sum + b.responseTime, 0) / availableBackends.length);
+            if (lfreeBackend && shouldSelectLfree) {
+                showToast(`✨ 已自动选择Lfree负载均衡后端，响应时间 ${lfreeBackend.responseTime}ms`, 'success');
+            } else {
+                showToast(`已选择最快后端，响应时间 ${currentSelected.responseTime}ms`, 'success');
+            }
+        }
+    };
+    
+    // Check all backends in parallel
+    const checkPromises = backendConfig.map(async (backend, index) => {
+        // Stagger the requests to avoid overwhelming the network
+        await new Promise(resolve => setTimeout(resolve, index * 100));
+        
+        const startTime = Date.now();
+        try {
+            const version = await checkBackendVersion(backend.value);
+            const responseTime = Date.now() - startTime;
+            
+            if (version) {
+                const result = {
+                    ...backend,
+                    version: version,
+                    responseTime: responseTime,
+                    label: backend.label,
+                    success: true
+                };
+                
+                backendResults.set(backend.value, result);
+                updateBackendList();
+                
+                return result;
+            }
+        } catch (error) {
+            // Backend failed
+        }
+        
+        backendResults.set(backend.value, { ...backend, success: false });
+        return null;
+    });
+    
+    // Wait at least 1 second, then show initial results if any
+    setTimeout(() => {
+        if (!hasSelectedInitial && backendResults.size > 0) {
+            updateBackendList();
+        }
+    }, 1000);
+    
+    // Wait for all checks to complete
+    await Promise.all(checkPromises);
+    
+    // Final update in case we didn't have any results after 1 second
+    if (backendResults.size > 0) {
+        const successfulBackends = Array.from(backendResults.values()).filter(r => r.success);
+        if (successfulBackends.length === 0) {
+            // Fallback to original list if no backends respond
+            backendHeaderSelect.innerHTML = '';
+            backendConfig.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option.value;
+                opt.textContent = option.label;
+                backendHeaderSelect.appendChild(opt);
+            });
+            
+            // Add custom backend option
+            const customOpt = document.createElement('option');
+            customOpt.value = 'custom';
+            customOpt.textContent = '自建本地服务';
+            backendHeaderSelect.appendChild(customOpt);
+            
+            showToast('未检测到可用的后端服务，请手动选择', 'warning');
+            backendHeaderSelect.disabled = false;
+        } else {
+            updateBackendList();
+        }
     }
     
-    // Add custom backend option
-    const customOpt = document.createElement('option');
-    customOpt.value = 'custom';
-    customOpt.textContent = '自建本地服务';
-    backendHeaderSelect.appendChild(customOpt);
-    
-    backendHeaderSelect.disabled = false;
-    
-    // Update button label after initialization
     updateBackendButtonLabel();
 }
 
@@ -1004,8 +1069,6 @@ $(document).ready(() => {
     const mobileAdvancedToggle = document.getElementById('mobileAdvancedToggle');
     const mobileAdvancedModal = document.getElementById('mobileAdvancedModal');
     const closeMobileAdvancedModal = document.getElementById('closeMobileAdvancedModal');
-    const mobileAdvancedConfirm = document.getElementById('mobileAdvancedConfirm');
-    const mobileAdvancedCancel = document.getElementById('mobileAdvancedCancel');
     const advancedToggleIcon = document.getElementById('advancedToggleIcon');
 
     // Initialize mobile advanced options
@@ -1023,27 +1086,6 @@ $(document).ready(() => {
 
     if (closeMobileAdvancedModal) {
         closeMobileAdvancedModal.addEventListener('click', () => {
-            mobileAdvancedModal.classList.add('hidden');
-            if (advancedToggleIcon) {
-                advancedToggleIcon.classList.remove('rotate-180');
-            }
-        });
-    }
-
-    if (mobileAdvancedConfirm) {
-        mobileAdvancedConfirm.addEventListener('click', () => {
-            applyMobileAdvancedOptions();
-            mobileAdvancedModal.classList.add('hidden');
-            if (advancedToggleIcon) {
-                advancedToggleIcon.classList.remove('rotate-180');
-            }
-            showToast('高级选项已更新', 'success');
-        });
-    }
-
-    if (mobileAdvancedCancel) {
-        mobileAdvancedCancel.addEventListener('click', () => {
-            syncMobileAdvancedOptions(); // Reset to current state
             mobileAdvancedModal.classList.add('hidden');
             if (advancedToggleIcon) {
                 advancedToggleIcon.classList.remove('rotate-180');
@@ -1076,29 +1118,6 @@ $(document).ready(() => {
         });
     });
 
-    // Mobile Bottom Action Buttons
-    const generateBtnMobile = document.getElementById('generateBtnMobile');
-    const importToClashMobile = document.getElementById('importToClashMobile');
-    const clashQrBtnMobile = document.getElementById('clashQrBtnMobile');
-
-    if (generateBtnMobile) {
-        generateBtnMobile.addEventListener('click', () => {
-            // Trigger the original form submission
-            const form = document.getElementById('optionsForm');
-            if (form) {
-                form.dispatchEvent(new Event('submit'));
-            }
-        });
-    }
-
-    if (importToClashMobile) {
-        importToClashMobile.addEventListener('click', handleImportToClash);
-    }
-
-    if (clashQrBtnMobile) {
-        clashQrBtnMobile.addEventListener('click', handleClashQrCode);
-    }
-
     // Close modal when clicking outside
     if (mobileAdvancedModal) {
         mobileAdvancedModal.addEventListener('click', (e) => {
@@ -1109,6 +1128,82 @@ $(document).ready(() => {
                 }
             }
         });
+    }
+
+    // Mobile Bottom Action Buttons
+    const generateBtnMobile = document.getElementById('generateBtnMobile');
+    const importToClashMobile = document.getElementById('importToClashMobile');
+    const clashQrBtnMobile = document.getElementById('clashQrBtnMobile');
+
+    if (generateBtnMobile) {
+        generateBtnMobile.addEventListener('click', () => {
+            // 验证必填字段
+            const form = document.getElementById('optionsForm');
+            const urlInput = document.getElementById('url');
+            const targetSelect = document.getElementById('target');
+            const backendHeaderSelect = document.getElementById('backendHeader');
+            
+            if (!form) {
+                showToast('表单未找到', 'error');
+                return;
+            }
+            
+            // 验证订阅链接
+            if (!urlInput || !urlInput.value.trim()) {
+                showToast('请填写订阅链接', 'error');
+                urlInput?.focus();
+                return;
+            }
+            
+            // 验证客户端类型
+            if (!targetSelect || !targetSelect.value) {
+                showToast('请选择客户端类型', 'error');
+                return;
+            }
+            
+            // 验证后端服务
+            if (!backendHeaderSelect || !backendHeaderSelect.value) {
+                showToast('请选择后端服务', 'error');
+                return;
+            }
+            
+            // 如果选择了自定义后端，验证自定义后端地址
+            if (backendHeaderSelect.value === 'custom') {
+                const customBackendHeader = document.getElementById('customBackendHeader');
+                if (!customBackendHeader || !customBackendHeader.value.trim()) {
+                    showToast('请输入自定义后端地址', 'error');
+                    return;
+                }
+            }
+            
+            // 如果开启了自定义配置，验证自定义配置链接
+            const customConfigToggle = document.getElementById('customConfigToggle');
+            if (customConfigToggle && customConfigToggle.checked) {
+                const customConfigInput = document.getElementById('customConfig');
+                if (!customConfigInput || !customConfigInput.value.trim()) {
+                    showToast('请输入自定义配置链接', 'error');
+                    return;
+                }
+                // 验证URL格式
+                try {
+                    new URL(customConfigInput.value.trim());
+                } catch (e) {
+                    showToast('自定义配置链接格式不正确，请输入有效的URL', 'error');
+                    return;
+                }
+            }
+            
+            // 所有验证通过，触发表单提交
+            form.dispatchEvent(new Event('submit'));
+        });
+    }
+
+    if (importToClashMobile) {
+        importToClashMobile.addEventListener('click', handleImportToClash);
+    }
+
+    if (clashQrBtnMobile) {
+        clashQrBtnMobile.addEventListener('click', handleClashQrCode);
     }
 
     // Show welcome message
