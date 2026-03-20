@@ -9,7 +9,8 @@ const TerserPlugin = require("terser-webpack-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
-    entry: "./src/index.ts",
+    mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
+    entry: "./src/index.js",
     output: {
         path: path.resolve(__dirname, "dist"),
         filename: "./js/[name].js"
@@ -19,22 +20,17 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.ts$/,
-                use: "ts-loader",
-                exclude: /node-moudles/
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['@babel/preset-env']
+                    }
+                }
             },
             {
                 test: /\.css$/,
-                use: [MiniCssExtractPlugin.loader, {
-                    loader: "css-loader",
-                    options: {
-                        url: false
-                    }
-                }],
-                exclude: /node-moudles/
-            },
-            {
-                test: /\.less$/,
                 use: [
                     MiniCssExtractPlugin.loader,
                     {
@@ -43,7 +39,17 @@ module.exports = {
                             url: false
                         }
                     },
-                    "less-loader"
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    require('tailwindcss'),
+                                    require('autoprefixer')
+                                ]
+                            }
+                        }
+                    }
                 ],
                 exclude: /node-moudles/
             }
@@ -62,12 +68,13 @@ module.exports = {
         new NodePolyfillPlugin(),
         new CopyPlugin({
             patterns: [
-                { from: "public/favicon.ico", to: "favicon.ico" }
+                { from: "public/favicon.ico", to: "favicon.ico" },
+                { from: "public/qrcode.min.js", to: "qrcode.min.js" }
             ],
         })
     ],
     resolve: {
-        extensions: [".ts", "..."]
+        extensions: [".js", "..."]
     },
     optimization: {
         splitChunks: {

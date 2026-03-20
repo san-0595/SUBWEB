@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试后端选择器</title>
+    <script src="https://unpkg.com/jquery@3.6.4/dist/jquery.min.js"></script>
+    <script>
+        // 模拟 backendConfig
+        const backendConfig = [
+            {
+                label: 'Lfree提供-负载均衡后端',
+                value: 'https://api.sub.zaoy.cn/sub?'
+            },
+            {
+                label: 'CM提供-负载均衡后端',
+                value: 'https://subapi.cmliussss.net/sub?'
+            },
+            {
+                label: '品云提供-稳定后端',
+                value: 'https://v.id9.cc/sub?'
+            }
+        ];
+
+        // 检查后端版本
+        async function checkBackendVersion(backend) {
+            try {
+                const baseUrl = backend.replace(/\/sub\?$/, '').replace(/\/sub$/, '');
+                const versionUrl = baseUrl + '/version';
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(versionUrl, {
+                    method: 'GET',
+                    mode: 'cors',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.text();
+                    return data.trim() || 'Unknown';
+                }
+                return null;
+            } catch (error) {
+                console.log('Backend check failed:', error);
+                return null;
+            }
+        }
+
+        // 初始化后端
+        async function initializeBackends() {
+            const backendSelect = document.getElementById('backend');
+            if (!backendSelect) {
+                console.error('Backend select not found!');
+                return;
+            }
+            
+            console.log('开始初始化后端选择器...');
+            
+            // 显示加载状态
+            backendSelect.innerHTML = '<option value="">🔄 正在检测可用后端...</option>';
+            backendSelect.disabled = true;
+            
+            const availableBackends = [];
+            
+            // 检查所有后端
+            const checkPromises = backendConfig.map(async (backend, index) => {
+                await new Promise(resolve => setTimeout(resolve, index * 200));
+                
+                const startTime = Date.now();
+                const version = await checkBackendVersion(backend.value);
+                const responseTime = Date.now() - startTime;
+                
+                console.log(`检查后端 ${backend.label}:`, { version, responseTime });
+                
+                if (version) {
+                    return {
+                        ...backend,
+                        version: version,
+                        responseTime: responseTime,
+                        label: backend.label
+                    };
+                }
+                return null;
+            });
+            
+            const results = await Promise.all(checkPromises);
+            const validBackends = results.filter(backend => backend !== null);
+            
+            console.log('可用后端:', validBackends);
+            
+            // 填充选择器
+            backendSelect.innerHTML = '';
+            
+            if (validBackends.length > 0) {
+                // 按响应时间排序
+                validBackends.sort((a, b) => a.responseTime - b.responseTime);
+                
+                validBackends.forEach((backend, index) => {
+                    const opt = document.createElement('option');
+                    opt.value = backend.value;
+                    if (index === 0) {
+                        opt.textContent = `${backend.label} ⚡ 最快 (${backend.responseTime}ms)`;
+                        opt.selected = true;
+                    } else {
+                        opt.textContent = `${backend.label} (${backend.responseTime}ms)`;
+                    }
+                    backendSelect.appendChild(opt);
+                });
+                
+                console.log(`检测到 ${validBackends.length} 个可用后端`);
+            } else {
+                // 回退到原始列表
+                backendConfig.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option.value;
+                    opt.textContent = option.label;
+                    backendSelect.appendChild(opt);
+                });
+                console.log('未检测到可用的后端服务');
+            }
+            
+            // 添加自定义后端选项
+            const customOpt = document.createElement('option');
+            customOpt.value = 'custom';
+            customOpt.textContent = '自建本地服务';
+            backendSelect.appendChild(customOpt);
+            
+            backendSelect.disabled = false;
+            console.log('后端选择器初始化完成');
+        }
+
+        // 页面加载完成后初始化
+        $(document).ready(() => {
+            console.log('页面加载完成，开始初始化...');
+            initializeBackends();
+        });
+    </script>
+</head>
+<body>
+    <h1>测试后端选择器</h1>
+    <div>
+        <label for="backend">选择后端：</label>
+        <select id="backend" name="backend" style="width: 400px; padding: 8px;">
+            <option value="">正在初始化...</option>
+        </select>
+    </div>
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0;"></div>
+</body>
+</html>

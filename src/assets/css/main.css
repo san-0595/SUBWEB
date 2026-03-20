@@ -1,0 +1,547 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles */
+@layer base {
+    html {
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+    
+    body {
+        @apply bg-gray-50;
+    }
+}
+
+/* Custom component styles */
+@layer components {
+    .btn-primary {
+        @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-xl shadow-lg text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105;
+    }
+    
+    .btn-secondary {
+        @apply inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-xl shadow-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105;
+    }
+    
+    .input-field {
+        @apply block w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all duration-200;
+    }
+    
+    .select-field {
+        @apply block w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-all duration-200 appearance-none bg-white hover:border-gray-300 cursor-pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' viewBox='0 0 20 20' fill='%236B7280'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 1.25rem;
+    }
+    
+    .select-field:focus {
+        @apply bg-gray-50 border-primary-500 shadow-lg;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-5 w-5' viewBox='0 0 20 20' fill='%236366F1'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd' /%3E%3C/svg%3E");
+    }
+    
+    /* Select dropdown styling */
+    .select-field option {
+        @apply px-4 py-3 text-gray-700 hover:bg-primary-50 hover:text-primary-700;
+        background-color: white;
+    }
+    
+    .select-field optgroup {
+        @apply font-semibold text-gray-900 bg-gray-50;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .select-field optgroup::before {
+        content: attr(label);
+        @apply px-4 py-2 text-xs text-gray-500 uppercase tracking-wider;
+        display: block;
+    }
+    
+    /* Custom select wrapper for enhanced styling */
+    .select-wrapper {
+        @apply relative;
+    }
+    
+    .select-wrapper::after {
+        content: '';
+        @apply absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none;
+        width: 2.5rem;
+        height: 2.5rem;
+        background: linear-gradient(90deg, transparent 0%, white 40%);
+        border-radius: 0 0.75rem 0.75rem 0;
+    }
+    
+    .card {
+        @apply bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-gray-200;
+    }
+    
+    .card-glass {
+        @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:border-white/30 dark:hover:border-gray-600/60;
+    }
+    
+    .card-header {
+        @apply px-6 py-5 border-b border-gray-100;
+    }
+    
+    .card-body {
+        @apply px-6 py-5;
+    }
+    
+    .toast-success {
+        @apply bg-green-50/90 dark:bg-green-900/90 backdrop-blur-sm border border-green-200/50 dark:border-green-700/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
+    }
+    
+    .toast-error {
+        @apply bg-red-50/90 dark:bg-red-900/90 backdrop-blur-sm border border-red-200/50 dark:border-red-700/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
+    }
+    
+    .toast-info {
+        @apply bg-blue-50/90 dark:bg-blue-900/90 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/50 rounded-xl p-4 flex items-center space-x-3 shadow-lg;
+    }
+    
+    .form-label {
+        @apply block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2;
+    }
+    
+    .switch {
+        @apply relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    }
+    
+    .switch-checked {
+        @apply bg-primary-600;
+    }
+    
+    .switch-thumb {
+        @apply inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1;
+    }
+    
+    .switch-thumb-checked {
+        @apply translate-x-6;
+    }
+    
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+    
+    .badge-primary {
+        @apply bg-primary-100 text-primary-800;
+    }
+    
+    .badge-secondary {
+        @apply bg-gray-100 text-gray-800;
+    }
+    
+    .gradient-text {
+        @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent;
+    }
+    
+    .hero-pattern {
+        background-color: #f9fafb;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e5e7eb' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    
+    .floating {
+        animation: floating 1.5s ease-in-out infinite;
+    }
+    
+    .floating-delay-1 {
+        animation-delay: 0.2s;
+    }
+    
+    .floating-delay-2 {
+        animation-delay: 0.4s;
+    }
+    
+    .pulse-glow {
+        animation: pulse-glow 1s ease-in-out infinite;
+    }
+}
+
+/* Enhanced select dropdown with mobile performance optimization */
+.select-enhanced {
+    @apply relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Only enable hover effects on desktop */
+@media (min-width: 640px) {
+    .select-enhanced:hover {
+        transform: translateY(-1px);
+    }
+}
+
+.select-enhanced select {
+    @apply w-full px-4 py-3 pr-12 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium transition-all duration-200 appearance-none cursor-pointer hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:bg-gray-50 dark:focus:bg-gray-600 focus:shadow-lg;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.5rem;
+}
+
+.select-enhanced select:focus {
+    @apply transform scale-[1.02];
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Dropdown open state */
+.select-enhanced select:active {
+    @apply ring-2 ring-primary-300 bg-gray-50;
+}
+
+/* Custom styling for select options */
+.select-enhanced select option {
+    @apply px-4 py-3 text-gray-700 dark:text-gray-200;
+    background-color: white;
+}
+
+.select-enhanced select option:is(.dark *) {
+    background-color: rgb(55 65 81);
+}
+
+.select-enhanced select option:hover {
+    @apply bg-primary-50 dark:bg-gray-600 text-primary-700 dark:text-gray-100;
+}
+
+.select-enhanced select option:checked {
+    @apply bg-primary-100 dark:bg-gray-500 text-primary-800 dark:text-gray-100 font-medium;
+}
+
+.select-enhanced select optgroup {
+    @apply font-bold text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-600 border-b border-gray-200 dark:border-gray-500;
+    padding: 0.75rem 0 0.5rem 0;
+}
+
+.select-enhanced select optgroup option {
+    @apply ml-4 dark:bg-gray-700;
+    padding: 0.5rem 1rem;
+}
+
+/* Floating label for selects */
+.select-floating {
+    @apply relative;
+}
+
+.select-floating label {
+    @apply absolute left-4 top-3 text-gray-500 dark:text-gray-400 text-sm transition-all duration-200 pointer-events-none z-10;
+}
+
+.select-floating select:focus + label,
+.select-floating select:not(:placeholder-shown) + label {
+    @apply -top-2 left-3 text-xs text-primary-600 dark:text-primary-400 bg-white dark:bg-gray-700 px-2;
+}
+
+/* Custom dropdown arrow animation */
+@keyframes dropdown-arrow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(2px); }
+}
+
+.select-enhanced:hover::after {
+    animation: dropdown-arrow 0.5s ease-in-out infinite;
+}
+
+/* Select focus glow effect */
+.select-enhanced::before {
+    content: '';
+    @apply absolute inset-0 rounded-xl bg-primary-500 opacity-0 transition-opacity duration-200 pointer-events-none;
+    z-index: -1;
+}
+
+.select-enhanced select:focus ~ .select-enhanced::before {
+    @apply opacity-10;
+}
+
+/* Dropdown icon rotation on open */
+@keyframes rotate-chevron {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(180deg); }
+}
+
+.select-enhanced select:focus {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' class='h-6 w-6 animate-spin' style='animation-duration: 0.3s; animation-direction: reverse;' viewBox='0 0 24 24' fill='none' stroke='%236366F1' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Custom utilities */
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+    
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* Loading animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes floating {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { 
+        box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+    }
+    50% { 
+        box-shadow: 0 0 25px rgba(99, 102, 241, 0.9);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fade-out {
+    animation: fade-out 0.3s ease-out forwards;
+}
+
+@keyframes fade-out {
+    from { 
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to { 
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.2s ease-out;
+}
+
+.animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+}
+
+.animate-scale-in {
+    animation: scale-in 0.15s ease-out;
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.animate-fade-out {
+    animation: fade-out 0.15s ease-out;
+}
+
+/* Refresh button animation */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* GitHub Corner styles */
+.github-corner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 50;
+    border: 0;
+    width: 80px;
+    height: 80px;
+}
+
+.github-corner svg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 0;
+    width: 80px;
+    height: 80px;
+    fill: #1f2937;
+    color: #fff;
+}
+
+.github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+}
+
+@keyframes octocat-wave {
+    0%, 100% { transform: rotate(0); }
+    20%, 60% { transform: rotate(-25deg); }
+    40%, 80% { transform: rotate(10deg); }
+}
+
+@media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+        animation: none;
+    }
+    .github-corner .octo-arm {
+        animation: octocat-wave 560ms ease-in-out;
+    }
+}
+
+/* Mobile Performance Optimizations */
+@media (max-width: 640px) {
+    /* Use will-change for frequently animated elements */
+    .animate-spin, .animate-pulse, .animate-bounce {
+        will-change: transform;
+    }
+    
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+    
+    /* Optimize touch targets */
+    button, input, select, textarea {
+        touch-action: manipulation;
+    }
+    
+    /* Use CSS containment for better performance */
+    .card, .card-glass {
+        contain: layout style paint;
+    }
+    
+    /* Optimize font rendering */
+    body {
+        text-rendering: optimizeSpeed;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Reduce animation complexity for mobile devices */
+@media (max-width: 640px) {
+    /* Simplify animations on mobile */
+    .floating {
+        animation: none;
+    }
+    
+    .pulse-glow {
+        animation: none;
+        box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
+    }
+    
+    /* Reduce blur effects on mobile for better performance */
+    .backdrop-blur-xl {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    
+    .backdrop-blur-md {
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+    
+    /* Optimize card glass effect for mobile */
+    .card-glass {
+        @apply bg-white/95 dark:bg-gray-900/95;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+    
+    /* Disable expensive transform effects on mobile */
+    .btn-primary:hover, .btn-secondary:hover {
+        transform: none;
+    }
+}
+
+/* Form validation styles */
+input:invalid, textarea:invalid, select:invalid {
+    @apply border-red-300;
+}
+
+input:invalid:focus, textarea:invalid:focus, select:invalid:focus {
+    @apply border-red-500 ring-red-500;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .dark\:bg-gray-900 {
+        background-color: #111827;
+    }
+    
+    .dark\:text-white {
+        color: #ffffff;
+    }
+}
+
+/* Focus visible styles */
+.focus-visible\:ring-2:focus-visible {
+    @apply ring-2 ring-offset-2;
+}
+
+.focus-visible\:ring-primary-500:focus-visible {
+    @apply ring-primary-500;
+}
+
+/* Transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+.transition-colors {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
